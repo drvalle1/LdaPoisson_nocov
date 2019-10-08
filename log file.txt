@@ -1,0 +1,7 @@
+signal to noise ratio is important: 
+
+1) we need to have a substantial fraction of pure sites
+2) We also need to be careful with the species composition of each group. If we just sample from rdirichlet, despite having 50 species, we might end up with much fewer species which actually have data (i.e., many species will be very rare or even absent). We need to have group specific species and we need to ensure that all species are at least ocasionally abundant.
+
+
+
