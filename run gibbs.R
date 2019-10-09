@@ -2,7 +2,7 @@
 library(MCMCpack)
 library('Rcpp')
 library('RcppArmadillo')
-set.seed(10)
+set.seed(11)
 
 #get functions
 setwd('U:\\GIT_models\\LdaPoisson_nocov')
@@ -11,7 +11,7 @@ source('gibbs functions.R')
 sourceCpp('aux1.cpp')
 
 #get data
-dat=read.csv('fake data8.csv',as.is=T)
+dat=read.csv('fake data.csv',as.is=T)
 y=data.matrix(dat)
 
 #basic settings

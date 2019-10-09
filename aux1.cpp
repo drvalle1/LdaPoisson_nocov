@@ -79,8 +79,7 @@ double LogLikMultin(int nloc,int ncomm, int nspp, NumericMatrix phi, NumericVect
 
 List SampleArray(NumericVector Arraylsk, int nloc, int nspp, int ncomm,
                  IntegerMatrix y, NumericVector runif1, 
-                 IntegerVector nk, IntegerMatrix nks, IntegerMatrix nlk,
-                 double PriorPhi, double agamma){
+                 NumericMatrix LogPhi, NumericMatrix LogLambda){
   
   //convert array into arma::cube
   NumericVector vecArray=clone(Arraylsk);
@@ -101,13 +100,10 @@ List SampleArray(NumericVector Arraylsk, int nloc, int nspp, int ncomm,
             for (int i = 0; i < ArrayLSK1Orig(l,s,k); i++){
               //remove i-th individual
               ArrayLSK1(l,s,k)=ArrayLSK1(l,s,k)-1;
-              nks(k,s)=nks(k,s)-1;
-              nlk(l,k)=nlk(l,k)-1;
-              nk[k]=nk[k]-1;
-              
+
               //calculate assignment probabilities
               for (int k1 = 0; k1 < ncomm; k1++){
-                prob[k1]=log(agamma+nlk(l,k1))-log(ArrayLSK1(l,s,k1)+1)+log(nks(k1,s)+PriorPhi)-log(nk[k1]+nspp*PriorPhi);  
+                prob[k1]=LogPhi(k1,s)+LogLambda(l,k1)-log(ArrayLSK1(l,s,k1)+1);  
               }
               prob=prob-max(prob);
               prob=exp(prob);
@@ -119,9 +115,6 @@ List SampleArray(NumericVector Arraylsk, int nloc, int nspp, int ncomm,
               
               //update counts
               ArrayLSK1(l,s,ind)=ArrayLSK1(l,s,ind)+1;
-              nks(ind,s)=nks(ind,s)+1;
-              nk[ind]=nk[ind]+1;
-              nlk(l,ind)=nlk(l,ind)+1;
             }
           }
         }

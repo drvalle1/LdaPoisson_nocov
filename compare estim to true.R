@@ -7,15 +7,22 @@ compare1=function(estim,true){
 }
 
 #look at nlk
-tmp=matrix(res$nlk[ngibbs,],nloc,ncomm); 
-tmp[1:10,]
-ordem=c(7,4,1,6,3,5,2,8)
-tmp[1:8,ordem]
+seq1=(ngibbs/2):ngibbs
+tmp=colMeans(res$nlk[seq1,])
+tmp1=matrix(tmp,nloc,ncomm); 
+round(tmp1[1:10,])
+ordem=c(1,5,4,2,3)
+round(tmp1[1:10,ordem])
 
-boxplot(tmp)
-compare1(estim=jitter(tmp[,ordem]),true=jitter(nlk.true))
+boxplot(tmp1)
+compare1(estim=jitter(tmp1[,ordem]),true=jitter(nlk.true))
 
 #look at phi
 tmp=matrix(res$phi[ngibbs,],ncomm,nspp)
 tmp1=tmp[ordem,]
 compare1(estim=tmp1,true=phi.true)
+
+#look at lambda
+tmp=matrix(res$lambda[ngibbs,],nloc,ncomm)
+tmp1=tmp[,ordem]
+compare1(estim=tmp1,true=media.true)

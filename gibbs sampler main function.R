@@ -38,19 +38,17 @@ gibbs.LDA.cov=function(ncomm,ngibbs,nburn,y,phi.prior,a.gamma,b.gamma){
     #sample z
     tmp = SampleArray(Arraylsk=array.lsk, nloc=nloc,nspp=nspp,ncomm=ncomm,
                       y=y,runif1=runif(sum(y)),
-                      nk=nk,nks=nks, nlk=nlk,
-                      PriorPhi=phi.prior, agamma=a.gamma)
+                      LogPhi=log(phi), LogLambda=log(lambda))
     array.lsk=tmp$ArrayLSK
     # array.lsk=array.lsk.true
     nlk=apply(array.lsk,c(1,3),sum)
     nks=t(apply(array.lsk,2:3,sum))
-    nk=colSums(nlk)
     # nks=nks.true#rbind(nks.true,0,0)
     # nlk=nlk.true#cbind(nlk.true,0,0)
 
     #sample thetas
     lambda=sample.lambda(nlk=nlk,a.gamma=a.gamma,b.gamma=b.gamma,nloc=nloc,ncomm=ncomm)
-    # lambda=lambda.true#c(lambda.true,0.01,0.01)
+    # lambda=media.true#c(lambda.true,0.01,0.01)
     
     #sample phi
     phi=rdirichlet1(alpha=nks+phi.prior,ncomm=ncomm,nspp=nspp)

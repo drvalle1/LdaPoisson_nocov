@@ -2,8 +2,8 @@ rm(list=ls(all=TRUE))
 library(MCMCpack)
 set.seed(1)
 
-nloc=500
-nspp=50
+nloc=1000
+nspp=100
 ncommun=5
 
 #design matrix
@@ -12,12 +12,12 @@ xmat=matrix(runif(nloc*ncommun,min=-1,max=1),nloc,ncommun)
 #pure sites
 tmp=matrix(-3,ncommun,ncommun)
 diag(tmp)=3
-for (i in 1:40){
+num1=floor(nloc/ncommun)
+for (i in 1:120){
   seq1=(ncommun*(i-1)+1):(ncommun*i)
   xmat[seq1,]=tmp
 }
-image(xmat[1:(10*ncommun),])
-40*8/nloc
+image(xmat[1:(num1*ncommun),])
 
 #parameters
 lambda.true=lambda=runif(ncommun,min=3,max=5)
@@ -25,7 +25,7 @@ betas.true=betas=diag(1,ncommun)
 
 #get means
 lambda1=matrix(lambda,nloc,ncommun,byrow=T)
-media=exp(log(lambda1)+xmat%*%betas); range(media)
+media.true=media=exp(log(lambda1)+xmat%*%betas); range(media)
 head(media)
 
 #generate N_lk
@@ -40,17 +40,24 @@ nl=apply(nlk,1,sum)
 hist(nl)
 sum(nl)
 
+plot(media,nlk)
+
 #generate phi (assuming that each species is strongly present in a single group) 
+# x=0:4
+# z=dbinom(x,size=4,prob=0.05)
+# plot(x+1,z,type='h')
+
 phi=matrix(0.01,ncommun,nspp)
 num=floor(nspp/ncommun)
-for (i in 1:ncommun){
-  seq1=(num*(i-1)+1):(num*i)
-  phi[i,seq1]=1
+for (i in 1:nspp){
+  n=rbinom(1,size=1,prob=0.1)+1
+  ind=sample(1:ncommun,size=n)
+  phi[ind,i]=1
 }
 phi.true=phi=phi/matrix(apply(phi,1,sum),ncommun,nspp)
 apply(phi,1,sum)
 
-image(phi)
+image(phi[,1:20])
 
 #per species
 par(mfrow=c(4,2),mar=rep(1,4))
@@ -82,6 +89,7 @@ array.lsk.true=array.lsk
 y=apply(array.lsk,c(1,2),sum)
 nks=t(apply(array.lsk,c(2,3),sum))
 image(y)
+plot(phi,nks)
 
 #checking if it makes sense
 plot(apply(array.lsk,c(1,3),sum),nlk)
@@ -94,10 +102,10 @@ nks.true=nks
 
 #export results
 setwd('U:\\GIT_models\\LdaPoisson_nocov')
-nome=paste('fake data',ncommun,'.csv',sep='')    
+nome='fake data.csv'
 colnames(y)=paste('spp',1:nspp,sep='')
 rownames(y)=paste('loc',1:nloc,sep='')
 write.csv(y,nome,row.names=F)    
 
-nome=paste('fake data xmat',ncommun,'.csv',sep='')    
+nome='fake data xmat.csv'
 write.csv(xmat,nome,row.names=F)    
