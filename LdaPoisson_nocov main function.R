@@ -1,4 +1,4 @@
-gibbs.LDA.cov=function(ncomm,ngibbs,nburn,y,phi.prior,a.gamma,b.gamma){
+gibbs.LDA.nocov=function(ncomm,ngibbs,nburn,y,phi.prior,a.gamma,b.gamma){
   #basic settings
   nloc=nrow(y)
   nspp=ncol(y)
@@ -20,11 +20,15 @@ gibbs.LDA.cov=function(ncomm,ngibbs,nburn,y,phi.prior,a.gamma,b.gamma){
   phi=matrix(1/nspp,ncomm,nspp)  
   lambda=matrix(1,nloc,ncomm)
 
+  #useful stuff
+  lo=0.00000000000000000000001
+  
   #to store outcomes from gibbs sampler
   lambda.out=matrix(NA,ngibbs,ncomm*nloc)
   phi.out=matrix(NA,ngibbs,nspp*ncomm)
   nlk.out=matrix(NA,ngibbs,nloc*ncomm)
   llk.out=rep(NA,ngibbs)
+  llk.ind.out=matrix(NA,ngibbs,nloc)
 
   #useful stuff for MH algorithm
   accept.output=50
@@ -58,7 +62,9 @@ gibbs.LDA.cov=function(ncomm,ngibbs,nburn,y,phi.prior,a.gamma,b.gamma){
     p1=dpois(nlk,lambda,log=T)
     # phi.tmp=phi; phi.tmp[phi.tmp<0.00001]=0.00001
     
-    p2=LogLikMultin(nloc=nloc,ncomm=ncomm,nspp=nspp,phi=phi,Arraylsk=array.lsk)    
+    phi.tmp=phi
+    phi.tmp[phi.tmp<lo]=lo    
+    p2=LogLikMultin(nloc=nloc,ncomm=ncomm,nspp=nspp,phi=phi.tmp,Arraylsk=array.lsk)    
     
     #get phi prior
     p3=ldirichlet(x=phi,alpha=phi.prior)
@@ -72,9 +78,11 @@ gibbs.LDA.cov=function(ncomm,ngibbs,nburn,y,phi.prior,a.gamma,b.gamma){
     phi.out[i,]=phi
     lambda.out[i,]=lambda
     nlk.out[i,]=nlk
+    llk.ind.out[i,]=p2
   }
 
-  list(llk=llk.out,phi=phi.out,lambda=lambda.out,nlk=nlk.out)  
+  list(llk=llk.out,phi=phi.out,lambda=lambda.out,nlk=nlk.out,
+       array.lsk=array.lsk,llk.ind.out=llk.ind.out)  
 }
 
 

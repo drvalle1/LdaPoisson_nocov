@@ -7,15 +7,14 @@ compare1=function(estim,true){
 }
 
 #look at nlk
-seq1=(ngibbs/2):ngibbs
-tmp=colMeans(res$nlk[seq1,])
-tmp1=matrix(tmp,nloc,ncomm); 
+tmp1=matrix(res$nlk[ngibbs,],nloc,ncomm); 
 round(tmp1[1:10,])
-ordem=c(1,5,4,2,3)
+ordem=c(5,3,2,1,4)
 round(tmp1[1:10,ordem])
 
 boxplot(tmp1)
-compare1(estim=jitter(tmp1[,ordem]),true=jitter(nlk.true))
+nlk.estim=tmp1[,ordem]
+compare1(estim=jitter(nlk.estim),true=jitter(nlk.true))
 
 #look at phi
 tmp=matrix(res$phi[ngibbs,],ncomm,nspp)
@@ -26,3 +25,17 @@ compare1(estim=tmp1,true=phi.true)
 tmp=matrix(res$lambda[ngibbs,],nloc,ncomm)
 tmp1=tmp[,ordem]
 compare1(estim=tmp1,true=media.true)
+
+#look at betas
+tmp=read.csv('fake data xmat.csv',as.is=T)
+xmat=data.matrix(tmp)
+betas=matrix(NA,ncol(xmat)+1,ncomm)
+for (i in 1:ncomm){
+  dat.tmp=cbind(nlk.estim[,i],xmat)
+  colnames(dat.tmp)=c('y',paste0('cov',1:ncol(xmat)))
+  dat.tmp1=as.data.frame(dat.tmp)
+  res=glm(y~.,data=dat.tmp1,family='poisson')
+  betas[,i]=res$coef
+}
+round(betas[-1,],3)
+
