@@ -2,6 +2,7 @@ gibbs.LDA.nocov=function(ncomm,ngibbs,nburn,y,phi.prior,a.gamma,b.gamma){
   #basic settings
   nloc=nrow(y)
   nspp=ncol(y)
+  tot=colSums(y)
   
   #initial values
   array.lsk=array(0,dim=c(nloc,nspp,ncomm))
@@ -59,22 +60,22 @@ gibbs.LDA.nocov=function(ncomm,ngibbs,nburn,y,phi.prior,a.gamma,b.gamma){
     # phi=phi.true #rbind(phi.true,0,0)
 
     #calculate Poisson probabilities
-    p1=dpois(nlk,lambda,log=T)
+    # p1=dpois(nlk,lambda,log=T)
     # phi.tmp=phi; phi.tmp[phi.tmp<0.00001]=0.00001
     
-    phi.tmp=phi
-    phi.tmp[phi.tmp<lo]=lo    
-    p2=LogLikMultin(nloc=nloc,ncomm=ncomm,nspp=nspp,phi=phi.tmp,Arraylsk=array.lsk)    
+    soma.lambda=rowSums(lambda)
+    prob=lambda%*%phi/soma.lambda
+    p2=rowSums(y*log(prob))+dpois(tot,soma.lambda,log=T)    
     
     #get phi prior
-    p3=ldirichlet(x=phi,alpha=phi.prior)
+    # p3=ldirichlet(x=phi,alpha=phi.prior)
     # log(ddirichlet(phi[2,],rep(phi.prior,nspp)))
     
     #get lambda prior
-    p5=dgamma(lambda,a.gamma,b.gamma,log=T)
+    # p5=dgamma(lambda,a.gamma,b.gamma,log=T)
     
     #store results  
-    llk.out[i]=sum(p1)+sum(p2)+sum(p3)+sum(p5)
+    llk.out[i]=sum(p2)#sum(p1)+sum(p3)+sum(p5)
     phi.out[i,]=phi
     lambda.out[i,]=lambda
     nlk.out[i,]=nlk

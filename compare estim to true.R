@@ -7,8 +7,8 @@ compare1=function(estim,true){
 }
 
 #look at nlk
-tmp1=matrix(res$nlk[ngibbs,],nloc,ncomm); 
-round(tmp1[1:10,])
+nlk.estim=apply(res$array.lsk,c(1,3),sum)
+round(nlk.estim[1:20,])
 ordem=c(5,3,2,1,4)
 round(tmp1[1:10,ordem])
 
@@ -17,7 +17,7 @@ nlk.estim=tmp1[,ordem]
 compare1(estim=jitter(nlk.estim),true=jitter(nlk.true))
 
 #look at phi
-tmp=matrix(res$phi[ngibbs,],ncomm,nspp)
+tmp=matrix(res$phi[ngibbs/2,],ncomm,nspp)
 tmp1=tmp[ordem,]
 compare1(estim=tmp1,true=phi.true)
 

@@ -56,20 +56,10 @@ double ldmultinom(IntegerVector x, int size, NumericVector prob) {
 
 // this function calculates the loglikelih based on multinomial
 // [[Rcpp::export]]
-NumericVector LogLikMultin(int nloc,int ncomm, int nspp, NumericMatrix phi, NumericVector Arraylsk){
+NumericVector LogLikMultin(int nloc, NumericMatrix prob, IntegerVector tot, IntegerMatrix y){
   NumericVector p2(nloc);
-  //convert array into arma::cube
-  NumericVector vecArray(Arraylsk);
-  arma::cube ArrayLSK1(vecArray.begin(), nloc, nspp, ncomm, false);
-  IntegerVector tmp(nspp);
-  
   for (int l = 0; l < nloc; l++) {
-    for (int k = 0; k < ncomm; k++){
-      for (int s = 0; s < nspp; s++){
-        tmp[s]=ArrayLSK1(l,s,k);
-      }
-      p2[l]=p2[l]+ldmultinom(tmp,sum(tmp),phi(k,_));
-    }
+    p2[l]=ldmultinom(y(l,_),tot[l],prob(l,_));
   }
   return(p2);
 }

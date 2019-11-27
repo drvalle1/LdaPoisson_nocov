@@ -1,28 +1,42 @@
-# rm(list=ls(all=TRUE))
+rm(list=ls(all=TRUE))
 library(MCMCpack)
 library('Rcpp')
 library('RcppArmadillo')
-set.seed(11)
-
-#get functions
-setwd('U:\\GIT_models\\LdaPoisson_nocov')
-source('LdaPoisson_nocov main function.R')
-source('LdaPoisson_nocov aux functions.R')
-sourceCpp('LdaPoisson_nocov_aux_cpp.cpp')
+set.seed(12)
 
 #get data
+setwd('U:\\GIT_models\\LdaPoisson_nocov')
 dat=read.csv('fake data.csv',as.is=T)
+xmat=data.matrix(read.csv('fake data xmat.csv',as.is=T))
 y=data.matrix(dat)
 
 #basic settings
-ncomm=5
+ncomm=10
 ngibbs=1000
 nburn=ngibbs/2
-phi.prior=0.01
+
+#priors
+psi=phi.prior=0.01
 a.gamma=b.gamma=0.1
+var.betas=10
+gamma=0.1
+#----------------------------------------------------------
+#run LDA no covariates to get initial values
 
-res=gibbs.LDA.nocov(ncomm=ncomm,ngibbs=ngibbs,nburn=nburn,y=y,
-                  phi.prior=phi.prior,a.gamma=a.gamma,b.gamma=b.gamma)
+#get functions
+setwd('U:\\GIT_models\\git_LDA_abundance')
+source('gibbs functions.R')
+source('LDA.abundance main function.R')
+sourceCpp('aux1.cpp')
 
-plot(res$lambda[ngibbs,],type='h')
-plot(res$llk,type='l')
+res=LDA.abundance(y=y,ncomm=ncomm,ngibbs=ngibbs,nburn=nburn,psi=psi,gamma=gamma)
+
+nloc=nrow(y)
+nspp=ncol(y)
+array.lsk.init=res$array.lsk
+
+#determine optimal number of groups
+nlk=apply(array.lsk.init,c(1,3),sum)
+theta=nlk/apply(nlk,1,sum)
+par(mfrow=c(1,1),mar=c(3,3,1,1))
+boxplot(theta)
